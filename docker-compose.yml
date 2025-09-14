@@ -1,0 +1,40 @@
+services:
+  water-monitoring:
+    build: .
+    container_name: water-monitoring-app
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount persistent database directory
+      - C:/wateralarm2:/data
+    environment:
+      # Database will be stored in the mounted volume
+      - DATABASE_PATH=/data/water_monitoring.db
+      # Environment variables for production
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - water-monitoring-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  water-monitoring-network:
+    driver: bridge
+
+# Optional: Add a volume for logs if needed
+volumes:
+  app-logs:
+    driver: local

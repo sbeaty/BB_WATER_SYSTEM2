@@ -1,0 +1,78 @@
+name: Deploy Water Monitoring System
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Create data directory if not exists
+      run: |
+        if [ ! -d "C:/wateralarm2" ]; then
+          mkdir -p C:/wateralarm2
+        fi
+        
+    - name: Copy current database to persistent location (if exists)
+      run: |
+        if [ -f "water_monitoring.db" ] && [ ! -f "C:/wateralarm2/water_monitoring.db" ]; then
+          cp water_monitoring.db C:/wateralarm2/water_monitoring.db
+          echo "Database copied to persistent location"
+        fi
+        
+    - name: Stop and remove existing container
+      run: |
+        docker stop water-monitoring-app || true
+        docker rm water-monitoring-app || true
+        
+    - name: Remove old image
+      run: |
+        docker rmi bb_water_system2-water-monitoring || true
+        
+    - name: Build new Docker image
+      run: |
+        docker-compose build --no-cache
+        
+    - name: Start new container
+      run: |
+        docker-compose up -d
+        
+    - name: Wait for container to be healthy
+      run: |
+        timeout=300
+        while [ $timeout -gt 0 ]; do
+          if docker inspect --format='{{.State.Health.Status}}' water-monitoring-app | grep -q "healthy"; then
+            echo "Container is healthy!"
+            break
+          fi
+          echo "Waiting for container to become healthy... ($timeout seconds remaining)"
+          sleep 10
+          timeout=$((timeout - 10))
+        done
+        
+        if [ $timeout -eq 0 ]; then
+          echo "Container failed to become healthy within 5 minutes"
+          docker logs water-monitoring-app
+          exit 1
+        fi
+        
+    - name: Clean up dangling images
+      run: |
+        docker image prune -f
+        
+    - name: Show deployment status
+      run: |
+        echo "=== Container Status ==="
+        docker ps --filter name=water-monitoring-app
+        echo ""
+        echo "=== Container Logs (last 20 lines) ==="
+        docker logs --tail 20 water-monitoring-app
+        echo ""
+        echo "=== Health Check ==="
+        curl -f http://localhost:5000/ && echo "✅ Application is responding" || echo "❌ Application health check failed"

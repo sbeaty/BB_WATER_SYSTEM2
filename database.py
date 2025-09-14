@@ -82,8 +82,22 @@ class SystemConfig(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class DatabaseManager:
-    def __init__(self, db_path='water_monitoring.db'):
+    def __init__(self, db_path=None):
+        # Use environment variable if available, otherwise use default path
+        if db_path is None:
+            db_path = os.getenv('DATABASE_PATH', 'water_monitoring.db')
+        
+        # If running in Docker and no custom path, use the mounted volume
+        if db_path == 'water_monitoring.db' and os.path.exists('/data'):
+            db_path = '/data/water_monitoring.db'
+        
         self.db_path = db_path
+        
+        # Ensure the directory exists
+        db_dir = os.path.dirname(self.db_path)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            
         # Add connection pooling and timeout settings for better concurrency
         self.engine = create_engine(
             f'sqlite:///{db_path}',
