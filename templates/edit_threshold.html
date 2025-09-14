@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Threshold - Water Monitoring System{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Edit Threshold</h1>
+                    <p class="mt-1 text-sm text-gray-500">Modify alarm threshold settings for {{ threshold.threshold_ref }}</p>
+                </div>
+                <a href="{{ url_for('thresholds') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Thresholds
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <form method="POST" class="space-y-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Threshold Reference (Read-only) -->
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Threshold Reference</label>
+                        <div class="mt-1 p-3 bg-gray-50 border border-gray-300 rounded-md">
+                            <span class="text-sm text-gray-900">{{ threshold.threshold_ref }}</span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">System tag: {{ threshold.threshold_ref.replace('_day', '').replace('_shift', '') }}</p>
+                    </div>
+
+                    <!-- Limit Value -->
+                    <div>
+                        <label for="limit_value" class="block text-sm font-medium text-gray-700">Limit Value</label>
+                        <div class="mt-1">
+                            <input type="number" 
+                                   name="limit_value" 
+                                   id="limit_value" 
+                                   step="0.1" 
+                                   value="{{ threshold.limit_value }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   required>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">The threshold value that triggers an alarm</p>
+                    </div>
+
+                    <!-- Comparison Operator -->
+                    <div>
+                        <label for="comparison_operator" class="block text-sm font-medium text-gray-700">Comparison Operator</label>
+                        <div class="mt-1">
+                            <select name="comparison_operator" 
+                                    id="comparison_operator"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value=">=" {% if threshold.comparison_operator == '>=' %}selected{% endif %}>Greater than or equal (>=)</option>
+                                <option value=">" {% if threshold.comparison_operator == '>' %}selected{% endif %}>Greater than (>)</option>
+                                <option value="<=" {% if threshold.comparison_operator == '<=' %}selected{% endif %}>Less than or equal (<=)</option>
+                                <option value="<" {% if threshold.comparison_operator == '<' %}selected{% endif %}>Less than (<)</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">How the current value is compared to the limit</p>
+                    </div>
+
+                    <!-- Target -->
+                    <div>
+                        <label for="target" class="block text-sm font-medium text-gray-700">Target Type</label>
+                        <div class="mt-1">
+                            <select name="target" 
+                                    id="target"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="day_total" {% if threshold.target == 'day_total' %}selected{% endif %}>24-Hour Total</option>
+                                <option value="shift_total" {% if threshold.target == 'shift_total' %}selected{% endif %}>Shift Total</option>
+                                <option value="absolute_value" {% if threshold.target == 'absolute_value' %}selected{% endif %}>Current/Absolute Value</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">What value to compare against the threshold</p>
+                    </div>
+
+                    <!-- Severity -->
+                    <div>
+                        <label for="severity" class="block text-sm font-medium text-gray-700">Severity Level</label>
+                        <div class="mt-1">
+                            <select name="severity" 
+                                    id="severity"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="critical" {% if threshold.severity == 'critical' %}selected{% endif %}>Critical</option>
+                                <option value="warn" {% if threshold.severity == 'warn' %}selected{% endif %}>Warning</option>
+                                <option value="medium" {% if threshold.severity == 'medium' %}selected{% endif %}>Medium</option>
+                                <option value="info" {% if threshold.severity == 'info' %}selected{% endif %}>Info</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Alarm severity level for notifications</p>
+                    </div>
+
+                    <!-- Message Template -->
+                    <div class="sm:col-span-2">
+                        <label for="message_template" class="block text-sm font-medium text-gray-700">Message Template</label>
+                        <div class="mt-1">
+                            <textarea name="message_template" 
+                                      id="message_template" 
+                                      rows="3"
+                                      class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                      placeholder="Alarm message template..."
+                                      required>{{ threshold.message_template }}</textarea>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Template for SMS messages. Available variables: {value}, {unit}, {limit}, {severity}
+                        </p>
+                    </div>
+
+                    <!-- Enabled Status -->
+                    <div class="sm:col-span-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   name="enabled" 
+                                   id="enabled" 
+                                   {% if threshold.enabled %}checked{% endif %}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="enabled" class="ml-2 block text-sm text-gray-900">
+                                Enable this threshold
+                            </label>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Uncheck to disable alarm monitoring for this threshold</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-3">
+                <a href="{{ url_for('thresholds') }}" 
+                   class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Threshold Preview -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Threshold Preview</h3>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-700">System:</span>
+                        <span class="ml-2 text-gray-900">{{ threshold.threshold_ref.replace('_day', '').replace('_shift', '') }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Target:</span>
+                        <span class="ml-2 text-gray-900">{{ threshold.target.replace('_', ' ').title() }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Condition:</span>
+                        <span class="ml-2 text-gray-900">{{ threshold.comparison_operator }} {{ threshold.limit_value }}</span>
+                    </div>
+                </div>
+                
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <span class="font-medium text-gray-700">Sample Message:</span>
+                    <div class="mt-1 p-2 bg-white border border-gray-200 rounded text-sm text-gray-900">
+                        {{ threshold.message_template }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live preview update
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = ['limit_value', 'comparison_operator', 'target', 'message_template'];
+    
+    inputs.forEach(inputId => {
+        const element = document.getElementById(inputId);
+        if (element) {
+            element.addEventListener('input', updatePreview);
+            element.addEventListener('change', updatePreview);
+        }
+    });
+    
+    function updatePreview() {
+        // This could be enhanced to show a live preview of the threshold condition
+    }
+});
+</script>
+{% endblock %}

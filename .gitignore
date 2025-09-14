@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# Environment variables
+.env
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+nul
+
+# Logs
+*.log
+
+# Claude Code
+.claude/
+
+# Large files and temporary data
+api_response.json
+*.png
+*.jpg
+*.jpeg

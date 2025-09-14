@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Add Contact - Water Monitoring System{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Add New Contact</h1>
+                    <p class="mt-1 text-sm text-gray-500">Create a new contact for alarm notifications</p>
+                </div>
+                <a href="{{ url_for('contacts') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Contacts
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Contact Form -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <form method="POST" class="space-y-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Name -->
+                    <div class="sm:col-span-2">
+                        <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="name" 
+                                   id="name" 
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="Enter full name"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div>
+                        <label for="msisdn" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <div class="mt-1">
+                            <input type="tel" 
+                                   name="msisdn" 
+                                   id="msisdn" 
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="+64211234567"
+                                   pattern="^\+[1-9]\d{1,14}$"
+                                   required>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Include country code (e.g., +64 for New Zealand)</p>
+                    </div>
+
+                    <!-- Group -->
+                    <div>
+                        <label for="group" class="block text-sm font-medium text-gray-700">Group</label>
+                        <div class="mt-1">
+                            <select name="group" 
+                                    id="group"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                    required>
+                                <option value="">Select a group</option>
+                                <option value="PC and CK">PC and CK</option>
+                                <option value="TC and Ext">TC and Ext</option>
+                                <option value="DAF and Hot water">DAF and Hot water</option>
+                                <option value="emergency">Emergency</option>
+                                <option value="operations">Operations</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="management">Management</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Which alert group should this contact belong to</p>
+                    </div>
+
+                    <!-- Role -->
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="role" 
+                                   id="role" 
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="e.g., Supervisor, Operator, Technician">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Job role or position (optional)</p>
+                    </div>
+
+                    <!-- Days of Week -->
+                    <div>
+                        <label for="dow" class="block text-sm font-medium text-gray-700">Days of Week</label>
+                        <div class="mt-1">
+                            <select name="dow" 
+                                    id="dow"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="ALL">All Days</option>
+                                <option value="MON,TUE,WED,THU,FRI">Weekdays Only</option>
+                                <option value="SAT,SUN">Weekends Only</option>
+                                <option value="MON">Monday</option>
+                                <option value="TUE">Tuesday</option>
+                                <option value="WED">Wednesday</option>
+                                <option value="THU">Thursday</option>
+                                <option value="FRI">Friday</option>
+                                <option value="SAT">Saturday</option>
+                                <option value="SUN">Sunday</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Which days should this contact receive alerts</p>
+                    </div>
+
+                    <!-- Time Window Start -->
+                    <div>
+                        <label for="window_start" class="block text-sm font-medium text-gray-700">Alert Start Time</label>
+                        <div class="mt-1">
+                            <input type="time" 
+                                   name="window_start" 
+                                   id="window_start" 
+                                   value="00:00"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Start of alert time window (24-hour format)</p>
+                    </div>
+
+                    <!-- Time Window End -->
+                    <div>
+                        <label for="window_end" class="block text-sm font-medium text-gray-700">Alert End Time</label>
+                        <div class="mt-1">
+                            <input type="time" 
+                                   name="window_end" 
+                                   id="window_end" 
+                                   value="23:59"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">End of alert time window (24-hour format)</p>
+                    </div>
+
+                    <!-- Enabled Status -->
+                    <div class="sm:col-span-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   name="enabled" 
+                                   id="enabled" 
+                                   checked
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="enabled" class="ml-2 block text-sm text-gray-900">
+                                Enable contact for notifications
+                            </label>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Contact will receive alerts when enabled</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-3">
+                <a href="{{ url_for('contacts') }}" 
+                   class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Contact
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Contact Configuration Help</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Phone Number:</strong> Must include country code (e.g., +64 for New Zealand)</li>
+                        <li><strong>Group:</strong> Determines which types of alarms this contact receives</li>
+                        <li><strong>Time Window:</strong> Contacts only receive alerts during their specified time window</li>
+                        <li><strong>Days of Week:</strong> Use "ALL" for every day, or specify specific days</li>
+                        <li><strong>Overnight Windows:</strong> Time windows can span midnight (e.g., 22:00 to 06:00)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Preview -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Preview</h3>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-700">Name:</span>
+                        <span id="preview-name" class="ml-2 text-gray-900">-</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Phone:</span>
+                        <span id="preview-phone" class="ml-2 text-gray-900">-</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Group:</span>
+                        <span id="preview-group" class="ml-2 text-gray-900">-</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Role:</span>
+                        <span id="preview-role" class="ml-2 text-gray-900">-</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Schedule:</span>
+                        <span id="preview-schedule" class="ml-2 text-gray-900">-</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Status:</span>
+                        <span id="preview-status" class="ml-2 text-gray-900">Enabled</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live preview update
+document.addEventListener('DOMContentLoaded', function() {
+    const fields = ['name', 'msisdn', 'group', 'role', 'dow', 'window_start', 'window_end', 'enabled'];
+    
+    fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element) {
+            element.addEventListener('input', updatePreview);
+            element.addEventListener('change', updatePreview);
+        }
+    });
+    
+    function updatePreview() {
+        document.getElementById('preview-name').textContent = document.getElementById('name').value || '-';
+        document.getElementById('preview-phone').textContent = document.getElementById('msisdn').value || '-';
+        document.getElementById('preview-group').textContent = document.getElementById('group').value || '-';
+        document.getElementById('preview-role').textContent = document.getElementById('role').value || '-';
+        
+        const dow = document.getElementById('dow').value;
+        const start = document.getElementById('window_start').value;
+        const end = document.getElementById('window_end').value;
+        document.getElementById('preview-schedule').textContent = `${dow} ${start}-${end}`;
+        
+        const enabled = document.getElementById('enabled').checked;
+        document.getElementById('preview-status').textContent = enabled ? 'Enabled' : 'Disabled';
+    }
+    
+    // Initial preview update
+    updatePreview();
+});
+</script>
+{% endblock %}

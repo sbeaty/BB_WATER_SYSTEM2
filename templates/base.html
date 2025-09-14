@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Water Monitoring System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#64748b',
+                        success: '#059669',
+                        warning: '#d97706',
+                        danger: '#dc2626',
+                        info: '#0284c7'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-tint text-blue-600 text-2xl"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">Water Monitor</span>
+                    </div>
+                    
+                    <!-- Navigation Links -->
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4">
+                            <a href="{{ url_for('dashboard') }}" 
+                               class="{% if request.endpoint == 'dashboard' %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-chart-line mr-1"></i> Dashboard
+                            </a>
+                            <a href="{{ url_for('thresholds') }}" 
+                               class="{% if request.endpoint in ['thresholds', 'edit_threshold'] %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-sliders-h mr-1"></i> Thresholds
+                            </a>
+                            <a href="{{ url_for('contacts') }}" 
+                               class="{% if request.endpoint in ['contacts', 'add_contact', 'edit_contact'] %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-users mr-1"></i> Contacts
+                            </a>
+                            <a href="{{ url_for('alarms') }}" 
+                               class="{% if request.endpoint == 'alarms' %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-bell mr-1"></i> Alarms
+                            </a>
+                            <a href="{{ url_for('settings') }}" 
+                               class="{% if request.endpoint == 'settings' %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-cog mr-1"></i> Settings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button x-data="{ open: false }" @click="open = !open" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Current time -->
+                <div class="hidden md:flex items-center text-sm text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span id="current-time"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-4 p-4 rounded-md {% if category == 'error' %}bg-red-50 border border-red-200 text-red-700{% elif category == 'success' %}bg-green-50 border border-green-200 text-green-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %}">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                {% if category == 'error' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% elif category == 'success' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                {{ message }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center text-sm text-gray-500">
+                <div>Water Monitoring System v1.0</div>
+                <div>
+                    <span id="connection-status" class="flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Connected
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('en-NZ', {
+                timeZone: 'Pacific/Auckland',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            const timeElement = document.getElementById('current-time');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+        }
+        
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Auto-refresh functionality for dashboard
+        {% if request.endpoint == 'dashboard' %}
+        let refreshInterval;
+        
+        function startAutoRefresh() {
+            refreshInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/live-data');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        updateDashboardData(data);
+                        updateConnectionStatus(true);
+                    } else {
+                        updateConnectionStatus(false);
+                    }
+                } catch (error) {
+                    console.error('Error fetching live data:', error);
+                    updateConnectionStatus(false);
+                }
+            }, 30000); // Refresh every 30 seconds
+        }
+        
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connection-status');
+            if (status) {
+                if (connected) {
+                    status.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>Connected';
+                } else {
+                    status.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>Disconnected';
+                }
+            }
+        }
+        
+        function updateDashboardData(data) {
+            // Update each row in the live data table
+            data.data.forEach(item => {
+                const row = document.querySelector(`[data-threshold-ref="${item.threshold_ref}"]`);
+                if (row) {
+                    // Update values
+                    const currentValue = row.querySelector('.current-value');
+                    const shiftTotal = row.querySelector('.shift-total');
+                    const dayTotal = row.querySelector('.day-total');
+                    const status = row.querySelector('.status-badge');
+                    
+                    if (currentValue) currentValue.textContent = item.current_value ? item.current_value.toFixed(1) : 'N/A';
+                    if (shiftTotal) shiftTotal.textContent = item.shift_total ? item.shift_total.toFixed(1) : '0';
+                    if (dayTotal) dayTotal.textContent = item.day_total ? item.day_total.toFixed(1) : '0';
+                    
+                    // Update status badge
+                    if (status) {
+                        if (item.threshold_exceeded) {
+                            status.className = 'status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+                            status.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>EXCEEDED';
+                        } else {
+                            status.className = 'status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                            status.innerHTML = '<i class="fas fa-check mr-1"></i>OK';
+                        }
+                    }
+                    
+                    // Update row color based on status
+                    if (item.threshold_exceeded) {
+                        row.className = row.className.replace(/bg-\w+-50/g, '').replace(/border-\w+-200/g, '') + ' bg-red-50 border-red-200';
+                    } else {
+                        row.className = row.className.replace(/bg-\w+-50/g, '').replace(/border-\w+-200/g, '') + ' bg-white';
+                    }
+                }
+            });
+            
+            // Update last refresh time
+            const lastUpdate = document.getElementById('last-update');
+            if (lastUpdate) {
+                lastUpdate.textContent = new Date().toLocaleTimeString('en-NZ', {
+                    timeZone: 'Pacific/Auckland',
+                    hour12: false
+                });
+            }
+        }
+        
+        // Start auto-refresh when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            startAutoRefresh();
+        });
+        
+        // Stop auto-refresh when page is unloaded
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

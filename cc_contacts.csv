@@ -1,0 +1,26 @@
+name,msisdn,group,role,dow,window_start,window_end,enabled
+Updated Test User,+64111000222,emergency,supervisor,,,,
+David Fuimaono,+64297712268,PC and CK,Primary,ALL,00:00,23:59,true
+Shubhamkumar Fulbaria,+6421757435,PC and CK,Primary,ALL,00:00,23:59,true
+"Leuea, Malaeliua",+64212460145,PC and CK,Primary,ALL,00:00,23:59,true
+Jasvinder Singh,+64276837934,PC and CK,Primary,ALL,00:00,23:59,true
+Niravkumar Patel,+64275756282,PC and CK,Primary,ALL,00:00,23:59,true
+Mathew Tupu,+64211119431,PC and CK,Primary,ALL,00:00,23:59,true
+Tamielee Chapman,+64275413990,PC and CK,Primary,ALL,00:00,23:59,true
+Esther Amani,+64275531986,PC and CK,Primary,ALL,00:00,23:59,true
+Patrick Prasad,+6421565994,PC and CK,Primary,ALL,00:00,23:59,true
+Linh Le,+6421737544,PC and CK,Primary,ALL,00:00,23:59,true
+Sharlene Marsh,+64276837932,TC and Ext,Primary,ALL,00:00,23:59,true
+Kelly Nicholson,+64272094007,TC and Ext,Primary,ALL,00:00,23:59,true
+Desiree Toto,+6421565907,TC and Ext,Primary,ALL,00:00,23:59,true
+Janice Kapa,+64276837946,TC and Ext,Primary,ALL,00:00,23:59,true
+Rachel Tulafoo,+64272677421,TC and Ext,Primary,ALL,00:00,23:59,true
+Irene Tafa,+64275834128,TC and Ext,Primary,ALL,00:00,23:59,true
+Tamielee Chapman,+64275413990,TC and Ext,Primary,ALL,00:00,23:59,true
+Linh Le,+6421737544,TC and Ext,Primary,ALL,00:00,23:59,true
+Ritchie En,+64212248138,TC and Ext,Primary,ALL,00:00,23:59,true
+Steve Lumpton,+64276878281,DAF and Hot water,Primary,ALL,00:00,23:59,true
+Site Service Team,+64275558209,DAF and Hot water,Primary,ALL,00:00,23:59,true
+Tamielee Chapman,+64275413990,DAF and Hot water,Primary,ALL,00:00,23:59,true
+Test User,+64123456789,operations,operator
+Test User Fixed,+64987654321,maintenance,technician,ALL,00:00,23:59,true

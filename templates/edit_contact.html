@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Contact - Water Monitoring System{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Edit Contact</h1>
+                    <p class="mt-1 text-sm text-gray-500">Modify contact information and notification settings</p>
+                </div>
+                <a href="{{ url_for('contacts') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Contacts
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Contact Form -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <form method="POST" class="space-y-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Name -->
+                    <div class="sm:col-span-2">
+                        <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="name" 
+                                   id="name" 
+                                   value="{{ contact.name }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div>
+                        <label for="msisdn" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <div class="mt-1">
+                            <input type="tel" 
+                                   name="msisdn" 
+                                   id="msisdn" 
+                                   value="{{ contact.msisdn }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   pattern="^\+[1-9]\d{1,14}$"
+                                   required>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Include country code (e.g., +64 for New Zealand)</p>
+                    </div>
+
+                    <!-- Group -->
+                    <div>
+                        <label for="group" class="block text-sm font-medium text-gray-700">Group</label>
+                        <div class="mt-1">
+                            <select name="group" 
+                                    id="group"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                    required>
+                                <option value="">Select a group</option>
+                                <option value="PC and CK" {% if contact.group == 'PC and CK' %}selected{% endif %}>PC and CK</option>
+                                <option value="TC and Ext" {% if contact.group == 'TC and Ext' %}selected{% endif %}>TC and Ext</option>
+                                <option value="DAF and Hot water" {% if contact.group == 'DAF and Hot water' %}selected{% endif %}>DAF and Hot water</option>
+                                <option value="emergency" {% if contact.group == 'emergency' %}selected{% endif %}>Emergency</option>
+                                <option value="operations" {% if contact.group == 'operations' %}selected{% endif %}>Operations</option>
+                                <option value="maintenance" {% if contact.group == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                                <option value="management" {% if contact.group == 'management' %}selected{% endif %}>Management</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Which alert group should this contact belong to</p>
+                    </div>
+
+                    <!-- Role -->
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="role" 
+                                   id="role" 
+                                   value="{{ contact.role or '' }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="e.g., Supervisor, Operator, Technician">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Job role or position (optional)</p>
+                    </div>
+
+                    <!-- Days of Week -->
+                    <div>
+                        <label for="dow" class="block text-sm font-medium text-gray-700">Days of Week</label>
+                        <div class="mt-1">
+                            <select name="dow" 
+                                    id="dow"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="ALL" {% if contact.dow == 'ALL' %}selected{% endif %}>All Days</option>
+                                <option value="MON,TUE,WED,THU,FRI" {% if contact.dow == 'MON,TUE,WED,THU,FRI' %}selected{% endif %}>Weekdays Only</option>
+                                <option value="SAT,SUN" {% if contact.dow == 'SAT,SUN' %}selected{% endif %}>Weekends Only</option>
+                                <option value="MON" {% if contact.dow == 'MON' %}selected{% endif %}>Monday</option>
+                                <option value="TUE" {% if contact.dow == 'TUE' %}selected{% endif %}>Tuesday</option>
+                                <option value="WED" {% if contact.dow == 'WED' %}selected{% endif %}>Wednesday</option>
+                                <option value="THU" {% if contact.dow == 'THU' %}selected{% endif %}>Thursday</option>
+                                <option value="FRI" {% if contact.dow == 'FRI' %}selected{% endif %}>Friday</option>
+                                <option value="SAT" {% if contact.dow == 'SAT' %}selected{% endif %}>Saturday</option>
+                                <option value="SUN" {% if contact.dow == 'SUN' %}selected{% endif %}>Sunday</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Which days should this contact receive alerts</p>
+                    </div>
+
+                    <!-- Time Window Start -->
+                    <div>
+                        <label for="window_start" class="block text-sm font-medium text-gray-700">Alert Start Time</label>
+                        <div class="mt-1">
+                            <input type="time" 
+                                   name="window_start" 
+                                   id="window_start" 
+                                   value="{{ contact.window_start }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Start of alert time window (24-hour format)</p>
+                    </div>
+
+                    <!-- Time Window End -->
+                    <div>
+                        <label for="window_end" class="block text-sm font-medium text-gray-700">Alert End Time</label>
+                        <div class="mt-1">
+                            <input type="time" 
+                                   name="window_end" 
+                                   id="window_end" 
+                                   value="{{ contact.window_end }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">End of alert time window (24-hour format)</p>
+                    </div>
+
+                    <!-- Enabled Status -->
+                    <div class="sm:col-span-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   name="enabled" 
+                                   id="enabled" 
+                                   {% if contact.enabled %}checked{% endif %}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="enabled" class="ml-2 block text-sm text-gray-900">
+                                Enable contact for notifications
+                            </label>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Contact will receive alerts when enabled</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-3">
+                <a href="{{ url_for('contacts') }}" 
+                   class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-700">Contact ID:</span>
+                        <span class="ml-2 text-gray-900">{{ contact.id }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Created:</span>
+                        <span class="ml-2 text-gray-900">{{ contact.created_at.strftime('%Y-%m-%d %H:%M') if contact.created_at else 'N/A' }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Last Updated:</span>
+                        <span class="ml-2 text-gray-900">{{ contact.updated_at.strftime('%Y-%m-%d %H:%M') if contact.updated_at else 'N/A' }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Current Status:</span>
+                        <span class="ml-2">
+                            {% if contact.enabled %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check mr-1"></i>Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-times mr-1"></i>Inactive
+                                </span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Contact -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-paper-plane text-yellow-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">Test Contact</h3>
+                <div class="mt-2 text-sm text-yellow-700">
+                    <p>You can send a test message to verify this contact's phone number is working correctly.</p>
+                    <button type="button" 
+                            onclick="sendTestMessage()" 
+                            class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200">
+                        <i class="fas fa-sms mr-1"></i>
+                        Send Test SMS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendTestMessage() {
+    const contactId = {{ contact.id }};
+    const msisdn = document.getElementById('msisdn').value;
+    
+    if (!msisdn) {
+        alert('Please enter a phone number first');
+        return;
+    }
+    
+    // Send test SMS via the settings test SMS endpoint
+    fetch('/settings/test-sms', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'test_numbers=' + encodeURIComponent(msisdn)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Test SMS sent to ' + msisdn);
+        } else {
+            alert('Failed to send test SMS');
+        }
+    })
+    .catch(error => {
+        alert('Error sending test SMS: ' + error);
+    });
+}
+</script>
+{% endblock %}

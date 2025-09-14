@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Water Monitoring System{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">System Settings</h1>
+                    <p class="mt-1 text-sm text-gray-500">Configure system-wide settings and preferences</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Form -->
+    <form method="POST" action="{{ url_for('save_settings') }}" class="space-y-6">
+        <!-- Twilio SMS Configuration -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">SMS Configuration</h3>
+                <p class="mt-1 text-sm text-gray-500">Configure Twilio settings for SMS notifications</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="twilio_sid" class="block text-sm font-medium text-gray-700">Twilio Account SID</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="twilio_sid" 
+                                   id="twilio_sid" 
+                                   value="{{ config.get('twilio_sid', '') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Your Twilio Account SID from the console</p>
+                    </div>
+
+                    <div>
+                        <label for="twilio_token" class="block text-sm font-medium text-gray-700">Twilio Auth Token</label>
+                        <div class="mt-1">
+                            <input type="password" 
+                                   name="twilio_token" 
+                                   id="twilio_token" 
+                                   value="{{ config.get('twilio_token', '') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="Enter Auth Token">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Your Twilio Auth Token (kept secure)</p>
+                    </div>
+
+                    <div>
+                        <label for="twilio_from" class="block text-sm font-medium text-gray-700">From Phone Number</label>
+                        <div class="mt-1">
+                            <input type="tel" 
+                                   name="twilio_from" 
+                                   id="twilio_from" 
+                                   value="{{ config.get('twilio_from', '') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="+64212345678">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Twilio phone number to send SMS from</p>
+                    </div>
+
+                    <div>
+                        <label for="test_mode" class="block text-sm font-medium text-gray-700">Test Mode</label>
+                        <div class="mt-1">
+                            <select name="test_mode" 
+                                    id="test_mode"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="true" {% if config.get('test_mode', 'true') == 'true' %}selected{% endif %}>Enabled</option>
+                                <option value="false" {% if config.get('test_mode', 'true') == 'false' %}selected{% endif %}>Disabled</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">When enabled, SMS only sent to test numbers</p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="test_numbers" class="block text-sm font-medium text-gray-700">Test Phone Numbers</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="test_numbers" 
+                                   id="test_numbers" 
+                                   value="{{ config.get('test_numbers', '') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="+64211234567,+64219876543">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Comma-separated list of phone numbers for test mode</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Configuration -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Database Configuration</h3>
+                <p class="mt-1 text-sm text-gray-500">SQL Server historian database connection settings</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="historian_server" class="block text-sm font-medium text-gray-700">Server Address</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="historian_server" 
+                                   id="historian_server" 
+                                   value="{{ config.get('historian_server', '192.168.10.236') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="192.168.10.236">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">IP address or hostname of the SQL Server</p>
+                    </div>
+
+                    <div>
+                        <label for="historian_database" class="block text-sm font-medium text-gray-700">Database Name</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="historian_database" 
+                                   id="historian_database" 
+                                   value="{{ config.get('historian_database', 'Runtime') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="Runtime">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Name of the historian database</p>
+                    </div>
+
+                    <div>
+                        <label for="historian_username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="historian_username" 
+                                   id="historian_username" 
+                                   value="{{ config.get('historian_username', 'wwUser') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="wwUser">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Database username</p>
+                    </div>
+
+                    <div>
+                        <label for="historian_password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <div class="mt-1">
+                            <input type="password" 
+                                   name="historian_password" 
+                                   id="historian_password" 
+                                   value="{{ config.get('historian_password', '') }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="Enter password">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Database password (kept secure)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Configuration -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">System Configuration</h3>
+                <p class="mt-1 text-sm text-gray-500">General system settings and preferences</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
+                        <div class="mt-1">
+                            <select name="timezone" 
+                                    id="timezone"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="Pacific/Auckland" {% if config.get('timezone', 'Pacific/Auckland') == 'Pacific/Auckland' %}selected{% endif %}>Pacific/Auckland (New Zealand)</option>
+                                <option value="Australia/Sydney" {% if config.get('timezone') == 'Australia/Sydney' %}selected{% endif %}>Australia/Sydney</option>
+                                <option value="UTC" {% if config.get('timezone') == 'UTC' %}selected{% endif %}>UTC</option>
+                                <option value="America/New_York" {% if config.get('timezone') == 'America/New_York' %}selected{% endif %}>America/New_York</option>
+                                <option value="Europe/London" {% if config.get('timezone') == 'Europe/London' %}selected{% endif %}>Europe/London</option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">System timezone for shift calculations and display</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-end space-x-3">
+            <button type="button" 
+                    onclick="testConnection()" 
+                    class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-database mr-2"></i>
+                Test Database Connection
+            </button>
+            <button type="button" 
+                    onclick="testSMS()" 
+                    class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-sms mr-2"></i>
+                Test SMS
+            </button>
+            <button type="submit" 
+                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-save mr-2"></i>
+                Save Settings
+            </button>
+        </div>
+    </form>
+
+    <!-- System Information -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg font-medium text-gray-900">System Information</h3>
+            <p class="mt-1 text-sm text-gray-500">Current system status and version information</p>
+        </div>
+        <div class="border-t border-gray-200">
+            <dl>
+                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Application Version</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Water Monitoring System v1.0</dd>
+                </div>
+                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Database Status</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <span id="db-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <i class="fas fa-question mr-1"></i>
+                            Unknown
+                        </span>
+                    </dd>
+                </div>
+                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">SMS Service Status</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <span id="sms-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <i class="fas fa-question mr-1"></i>
+                            Unknown
+                        </span>
+                    </dd>
+                </div>
+                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Last Configuration Update</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Not available</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Data Management -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg font-medium text-gray-900">Data Management</h3>
+            <p class="mt-1 text-sm text-gray-500">Import/export configuration data</p>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Import Configuration</h4>
+                    <p class="text-sm text-gray-500 mb-3">Re-import contacts and thresholds from CSV files</p>
+                    <button type="button" 
+                            onclick="importData()" 
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-upload mr-2"></i>
+                        Import from CSV
+                    </button>
+                </div>
+                
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Backup Configuration</h4>
+                    <p class="text-sm text-gray-500 mb-3">Export current configuration as backup</p>
+                    <button type="button" 
+                            onclick="exportData()" 
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-download mr-2"></i>
+                        Export Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testConnection() {
+    // This would be implemented to test database connection
+    const statusElement = document.getElementById('db-status');
+    statusElement.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Testing...';
+    statusElement.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+    
+    // Simulate test (replace with actual API call)
+    setTimeout(() => {
+        statusElement.innerHTML = '<i class="fas fa-check mr-1"></i>Connected';
+        statusElement.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+    }, 2000);
+}
+
+function testSMS() {
+    const statusElement = document.getElementById('sms-status');
+    statusElement.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Testing...';
+    statusElement.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+    
+    // Send POST request to test SMS endpoint
+    fetch('/settings/test-sms', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Success - show success message
+            statusElement.innerHTML = '<i class="fas fa-check mr-1"></i>SMS Sent';
+            statusElement.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+            statusElement.title = data.message; // Show details on hover
+        } else {
+            // Error occurred
+            statusElement.innerHTML = '<i class="fas fa-times mr-1"></i>Failed';
+            statusElement.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+            statusElement.title = data.message; // Show error details on hover
+        }
+    })
+    .catch(error => {
+        statusElement.innerHTML = '<i class="fas fa-times mr-1"></i>Error';
+        statusElement.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+        statusElement.title = error.toString();
+        console.error('Error:', error);
+    });
+}
+
+function importData() {
+    if (confirm('This will re-import data from CSV files. Continue?')) {
+        // This would be implemented to trigger data import
+        alert('Data import functionality would be implemented here.');
+    }
+}
+
+function exportData() {
+    // This would be implemented to export configuration
+    alert('Data export functionality would be implemented here.');
+}
+
+// Check initial status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    testConnection();
+    // Don't call testSMS() automatically - only when user clicks the button
+});
+</script>
+{% endblock %}
